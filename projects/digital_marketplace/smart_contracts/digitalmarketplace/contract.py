@@ -2,6 +2,11 @@ from algopy import ARC4Contract, Asset, Global, Txn, UInt64, arc4, gtxn, itxn
 
 
 class Digitalmarketplace(ARC4Contract):
+    """
+    A reusable base model for Algorand ARC-4 smart contracts.
+    This model provides common functionalities for managing assets and global state.
+    """
+
     # Global State
     asset_id: UInt64
     unitary_price: UInt64
@@ -9,6 +14,13 @@ class Digitalmarketplace(ARC4Contract):
     # Creacion del contrato o la aplicación Dapp
     @arc4.abimethod(allow_actions=["NoOp"], create="require")
     def create_application(self, asset_id: Asset, unitary_price: UInt64) -> None:
+        """
+        Initialize the contract by setting the asset ID and unitary price.
+
+        Parameters:
+        - asset_id: The asset ID to be managed by this contract.
+        - unitary_price: Value unitary of the asset
+        """
         # Guardar un numero de asset ID
         self.asset_id = asset_id.id
         # Guardar un precio unitario
@@ -22,6 +34,18 @@ class Digitalmarketplace(ARC4Contract):
         self,
         mbr_pay: gtxn.PaymentTransaction,  # Transaccion de pago dentro de una transaccion grupal o transacciones atomicas
     ) -> None:
+        """
+        Opt-in to the asset managed by this contract.
+
+        Validations:
+        - Only the creator can call this method.
+        - The application must not already be opted-in to the asset.
+        - The receiver is the application
+        - The minimum balance requirements must be met.
+
+        Parameters:
+        - mbr_pay: A payment transaction covering the opt-in costs.
+        """
         # Verifica que el que envia sea el creador del contrato, esta accion solo la puede hacer el creador
         assert Txn.sender == Global.creator_address
 
@@ -41,7 +65,7 @@ class Digitalmarketplace(ARC4Contract):
             asset_amount=0,  # Al enviarme cero tokens estoy dando permisos a la red para que interactue con ese asset
         ).submit()
 
-    # Usuario vendedor defina el precio de venta de los assets
+    # Usuario vendedor define el precio de venta de los assets
     @arc4.abimethod
     def set_price(self, unitary_price: UInt64) -> None:
         # Verifica que el que modifica el precio sea el creador del contrato, esta accion solo la puede hacer el creador
@@ -56,6 +80,23 @@ class Digitalmarketplace(ARC4Contract):
         quantity: UInt64,  # Cantidad de assets a comprar
         buyer_txn: gtxn.PaymentTransaction,  # Transaccion de pago dentro de una transaccion grupal o transacciones atomicas
     ) -> None:
+        """
+        Enables the purchase of assets from the smart contract.
+
+        This method validates the payment transaction, checks the conditions
+        required for the purchase, and performs the asset transfer.
+
+        Validations:
+        - If the unit price is zero
+        - If the sender of the payment transaction does not match the caller
+        - If the receiver of the payment is not the smart contract address
+        - Or if the payment amount does not match the expected price.
+
+        Parameters:
+        - quantity (UInt64): Number of assets to purchase.
+        - buyer_txn (gtxn.PaymentTransaction): Payment transaction included in a grouped transaction.
+        """
+
         # Verificar que el precio de venta sea diferente de cero
         assert self.unitary_price != UInt64(0)
 
@@ -79,6 +120,11 @@ class Digitalmarketplace(ARC4Contract):
     # Hacer esto es siempre recomendado para librerar siempre esos 0.001 algos del balance minimo
     @arc4.abimethod(allow_actions=["DeleteApplication"])
     def delete_application(self) -> None:
+        """
+        Delete the application, transferring any remaining funds or assets to the creator.
+
+        This method ensures a clean closure of the application.
+        """
         # Verifica que el que elimina el contrato sea el creador del contrato, esta accion solo la puede hacer el creador
         assert Txn.sender == Global.creator_address
 
