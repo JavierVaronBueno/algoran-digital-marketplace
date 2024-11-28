@@ -17,7 +17,7 @@ Métodos:
     - delete_application: Elimina la aplicación y transfiere las ganancias y activos restantes al creador.
 
 Autores:
-    - [Nombre del desarrollador o equipo]
+    - [Javier Varon]
 
 Licencia:
     - [Tipo de licencia, e.g., MIT]
@@ -38,7 +38,7 @@ class Digitalmarketplace(ARC4Contract):
     asset_id: UInt64  # Identificador del activo ASA
     unitary_price: UInt64  # Precio unitario del activo
 
-    # Creación del contrato o la aplicación DApp
+    # Creación del contrato o la aplicación Dapp
     @arc4.abimethod(allow_actions=["NoOp"], create="require")
     def create_application(self, asset_id: Asset, unitary_price: UInt64) -> None:
         """

@@ -22,7 +22,7 @@ __puya_arc4_router__:
 
 __puya_arc4_router___create_application_route@2:
     // smart_contracts/digitalmarketplace/contract.py:41-42
-    // # Creación del contrato o la aplicación DApp
+    // # Creación del contrato o la aplicación Dapp
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     txn OnCompletion
     !
@@ -38,7 +38,7 @@ __puya_arc4_router___create_application_route@2:
     txna ApplicationArgs 2
     btoi
     // smart_contracts/digitalmarketplace/contract.py:41-42
-    // # Creación del contrato o la aplicación DApp
+    // # Creación del contrato o la aplicación Dapp
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     callsub create_application
     intc_1 // 1
@@ -142,7 +142,7 @@ __puya_arc4_router___after_if_else@10:
 // smart_contracts.digitalmarketplace.contract.Digitalmarketplace.create_application(asset_id: uint64, unitary_price: uint64) -> void:
 create_application:
     // smart_contracts/digitalmarketplace/contract.py:41-43
-    // # Creación del contrato o la aplicación DApp
+    // # Creación del contrato o la aplicación Dapp
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     // def create_application(self, asset_id: Asset, unitary_price: UInt64) -> None:
     proto 2 0
