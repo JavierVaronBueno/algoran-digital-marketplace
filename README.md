@@ -1,22 +1,104 @@
-# digital_marketplace
+# Digitalmarketplace
 
-Welcome to your new AlgoKit project!
+A reusable Algorand ARC-4 compliant smart contract that implements a digital marketplace. This contract facilitates asset management, pricing, purchases, and fund withdrawal, making it an ideal choice for decentralized marketplaces.
 
-This is your workspace root. A `workspace` in AlgoKit is an orchestrated collection of standalone projects (backends, smart contracts, frontend apps and etc).
+## Features
 
-By default, `projects_root_path` parameter is set to `projects`. Which instructs AlgoKit CLI to create a new directory under `projects` directory when new project is instantiated via `algokit init` at the root of the workspace.
+- **Asset Management**: Opt-in to assets and manage their state.
+- **Dynamic Pricing**: Set and update the unit price of an asset.
+- **Asset Purchases**: Allow users to purchase assets through grouped transactions.
+- **Secure Deletion**: Safely delete the application while transferring remaining assets and funds to the creator.
 
-## Getting Started
+## Global State Variables
 
-To get started refer to `README.md` files in respective sub-projects in the `projects` directory.
+- `asset_id (UInt64)`: The ID of the asset managed by this contract.
+- `unitary_price (UInt64)`: The unit price of the asset.
 
-To learn more about algokit, visit [documentation](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md).
+## Methods
 
-### GitHub Codespaces
+### 1. `create_application(asset_id: Asset, unitary_price: UInt64)`
 
-To get started execute:
+Initializes the smart contract.
 
-1. `algokit generate devcontainer` - invoking this command from the root of this repository will create a `devcontainer.json` file with all the configuration needed to run this project in a GitHub codespace. [Run the repository inside a codespace](https://docs.github.com/en/codespaces/getting-started/quickstart) to get started.
-2. `algokit init` - invoke this command inside a github codespace to launch an interactive wizard to guide you through the process of creating a new AlgoKit project
+#### Parameters:
+- `asset_id`: The ID of the asset to manage.
+- `unitary_price`: The unit price of the asset.
 
-Powered by [Copier templates](https://copier.readthedocs.io/en/stable/).
+#### Notes:
+- This method is called during the contract creation process.
+
+---
+
+### 2. `opt_in_to_asset(mbr_pay: gtxn.PaymentTransaction)`
+
+Allows the smart contract to opt-in to the specified asset.
+
+#### Parameters:
+- `mbr_pay`: A payment transaction covering the opt-in cost.
+
+#### Validations:
+- Only the contract creator can call this method.
+- The application must not already be opted-in to the asset.
+- The receiver of the payment must be the application itself.
+- The payment amount must meet minimum balance requirements.
+
+---
+
+### 3. `set_price(unitary_price: UInt64)`
+
+Updates the unit price of the asset.
+
+#### Parameters:
+- `unitary_price`: The new unit price of the asset.
+
+#### Validations:
+- Only the contract creator can call this method.
+
+---
+
+### 4. `buy(quantity: UInt64, buyer_txn: gtxn.PaymentTransaction)`
+
+Allows a user to purchase assets from the smart contract.
+
+#### Parameters:
+- `quantity`: The number of assets to purchase.
+- `buyer_txn`: The payment transaction associated with the purchase.
+
+#### Validations:
+- The unit price must not be zero.
+- The sender of the payment transaction must match the caller.
+- The receiver of the payment must be the smart contract.
+- The payment amount must equal the total cost of the purchase.
+
+---
+
+### 5. `delete_application()`
+
+Deletes the application and transfers any remaining assets and funds to the contract creator.
+
+#### Validations:
+- Only the contract creator can call this method.
+
+#### Notes:
+- This method ensures a clean closure of the application and frees up resources.
+
+---
+
+## How to Use
+
+1. **Deploy the Contract**: Call `create_application` with the desired `asset_id` and `unitary_price`.
+2. **Opt-in to the Asset**: Use `opt_in_to_asset` to allow the contract to interact with the asset.
+3. **Set the Price**: Adjust the unit price of the asset with `set_price`.
+4. **Facilitate Purchases**: Allow buyers to call `buy` with their desired quantity.
+5. **Clean Up**: When no longer needed, call `delete_application` to close the contract and transfer funds.
+
+## Requirements
+
+- Algorand blockchain and ARC-4 compliance.
+- Adequate balance for minimum requirements when opting in to assets.
+- Users must perform grouped transactions for certain operations, such as `buy`.
+
+## License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
